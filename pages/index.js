@@ -112,61 +112,45 @@ export default function Home() {
     .then(function(respostaCompleta) {
       setSeguidores(respostaCompleta);
     })
-    
-    const comunidade = [{
-      id: '2202',
-      title: 'Eu consigo acordar cedo',
-      image: 'https://alurakut.vercel.app/capa-comunidade-01.jpg'
-    }];
-    setComunidades(comunidade);
 
     // API GraphQL
-    fetch('https://graphql.datocms.com/', {
-      method: 'POST',
+    fetch('/api/getcomunidades', {
+      method: 'GET',
       headers: {
-        'Authorization': '127f5470a069acd1a2d1245b431e81',
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
-      body: JSON.stringify({ "query": `query {
-        allCommunities {
-          id 
-          title
-          imageUrl          
-        }
-      }` })
     })
-    .then((response) => response.json()) // Pega o retorno do response.json() e já retorna
-    .then((respostaCompleta) => {
-      const comunidadesVindasDoDato = respostaCompleta.data.allCommunities;
-      console.log(respostaCompleta)
-      setComunidades(comunidadesVindasDoDato)
-    })
-
-  }, [])  
+      .then((response) => response.json())
+      .then((respostaCompleta) => {
+        const comunidadesVindasDoDato = respostaCompleta.data;
+        setComunidades(comunidadesVindasDoDato);
+      })
+  }, [])
 
   function handleComunidade(e) {
+    
     e.preventDefault();  
+
     const dadosDoForm = new FormData(e.target);  
+   
     const comunidade = {     
       title: dadosDoForm.get('title'),
       imageUrl: dadosDoForm.get('image'),
-    }  
-
-    fetch('/api/comunidades', {
+    } 
+    fetch('/api/setcomunidades', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(comunidade)
     })
-      .then(async (response) => {
-        const dados = await response.json();
-        console.log(dados.registroCriado);
-        const comunidade = dados.registroCriado;
-        const comunidadesAtualizadas = [...comunidades, comunidade];
-        setComunidades(comunidadesAtualizadas)
-      });    
+    .then(async (response) => {
+      const dados  = await response.json();     
+      const comunidade = dados.dado;
+      const comunidadesAtualizadas = [...comunidades, comunidade];
+      setComunidades(comunidadesAtualizadas)
+    })
   }
 
   return (
